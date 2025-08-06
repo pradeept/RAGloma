@@ -16,6 +16,7 @@
     "@langchain/community": "^0.3.49",
     "@langchain/core": "^0.3.66",
     "langchain": "^0.3.30",
+    "motion": "^12.23.12",
     "next": "15.3.5",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"

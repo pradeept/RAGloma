@@ -1,12 +1,43 @@
-import { perplexity } from "@/lib/perplexity";
-import { NextRequest } from "next/server";
+import { perplexity } from "@/utils/perplexity";
+import { NextRequest, NextResponse } from "next/server";
 
-export async function GET(request: NextRequest) {
-  const language: string | null = request.nextUrl.searchParams.get("language");
-  const input: string | null = request.nextUrl.searchParams.get("input");
-  const data = await perplexity(language, input);
+export async function GET(req: NextRequest) {
+  // Setting the proper headers for SSE
+  const headers = new Headers();
+  headers.set("Content-Type", "text/event-stream");
+  headers.set("Transfer-Encoding", "chunked");
+  headers.set("Connection", "keep-alive");
+  const { searchParams } = new URL(req.url);
 
-  if (!data) return Response.json({ error: "Invalid data" }, { status: 401 });
-  console.log(data);
-  return Response.json({ data }, { status: 200 });
+  const language = searchParams.get("language");
+  const text = searchParams.get("text");
+  const stream = await perplexity(language, text);
+
+  if (!language || !text) {
+    return NextResponse.json(
+      { error: "Missing query parameters" },
+      { status: 400 }
+    );
+  }
+
+  const readableStream = new ReadableStream({
+    async start(controller) {
+      try {
+        if (stream) {
+          for await (const chunk of stream) {
+            const content = chunk.content || "";
+            // Format as SSE event
+            controller.enqueue(`data: ${content}\n\n`);
+          }
+          controller.enqueue("event: end\ndata: \n\n");
+          controller.close();
+        }
+      } catch (err) {
+        controller.error(err);
+      }
+    },
+  });
+
+  // Return the response with the stream
+  return new Response(readableStream, { headers });
 }

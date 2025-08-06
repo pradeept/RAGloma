@@ -1,6 +1,6 @@
 # V1
 
-### Simple LLM Application with chat models and prompt templates.
+### Translator App - using chat models and prompt templates.
 
 ## Tech Stack
 
@@ -9,3 +9,11 @@
 - Langchain
 - Perplexity API
 ```
+
+### Goal - V1
+
+- Simple prompt + configuration ✅
+- Prompt template ✅
+- User Input form ✅
+- Refining LLM response ✅
+- Response streaming(SSE) with UX ✅

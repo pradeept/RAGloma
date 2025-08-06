@@ -1,56 +1,76 @@
 "use client";
-import React, { useState } from "react";
+import React, { FormEvent, useState } from "react";
+import DisplayResponse from "./DisplayResponse";
 
-function FormComponent({
-  handler,
-}: {
-  handler: (
-    language: string,
-    input: string
-  ) => Promise<
-    { error: string; response?: undefined } | { response: string; error?: undefined }
-  >;
-}) {
-  const [data, setData] = useState<{ language: string; input: string }>({
-    language: "",
-    input: "",
-  });
+function FormComponent() {
+  const [language, setLanguage] = useState<string | undefined>(undefined);
+  const [input, setInput] = useState<string | undefined>(undefined);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [responseText, setResponseText] = useState<string>("");
 
-  const [aiResponse, setAiresponse] = useState<string | undefined>(undefined);
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setData(() => {
-      return { ...data, [e.target.name]: e.target.value };
+  const handleSubmit = (e: FormEvent) => {
+    e.preventDefault();
+    setResponseText("");
+    setLoading(true);
+    // Use EventSource for SSE
+    // NOTE: Fetch is not a best option for SSE
+    const url = `http://localhost:3000/api/perplexity?language=${language}&text=${input}`;
+    const eventSource = new window.EventSource(url);
+
+    eventSource.onmessage = (event) => {
+      // Each event.data is a chunk
+      setResponseText((prev) => prev + event.data);
+    };
+
+    eventSource.onerror = (err) => {
+      console.error("EventSource failed:", err);
+      setLoading(false);
+      eventSource.close();
+    };
+
+    eventSource.addEventListener("end", () => {
+      setLoading(false);
+      eventSource.close();
     });
   };
-
-  const handleSubmit = async () => {
-    const result = await handler(data.language, data.input);
-    if (result.error) setAiresponse(result.error);
-    else setAiresponse(result.response);
-  };
   return (
-    <form onSubmit={(e) => e.preventDefault()} className='flex flex-col gap-2'>
+    <form
+      onSubmit={(e) => handleSubmit(e)}
+      className='w-full max-w-2xl mx-auto mt-8 p-6 bg-white rounded-2xl shadow-lg flex flex-col gap-6'
+    >
       <input
         type='text'
         name='language'
-        placeholder='Enter the Language'
-        onChange={(e) => handleChange(e)}
-        className='border border-gray-400 rounded-xl p-2 outline-none'
+        placeholder='Enter the Language (e.g. French)'
+        onChange={(e) => setLanguage(e.target.value)}
+        className='border border-gray-300 rounded-xl p-3 outline-none focus:border-blue-400 transition duration-200 text-lg bg-gray-50'
+        autoComplete='off'
       />
       <input
         type='text'
         name='input'
-        placeholder='Enter the Prompt'
-        onChange={(e) => handleChange(e)}
-        className='border border-gray-400 rounded-xl p-2 outline-none'
+        placeholder='Enter the Prompt (e.g. I love programming)'
+        onChange={(e) => setInput(e.target.value)}
+        className='border border-gray-300 rounded-xl p-3 outline-none focus:border-blue-400 transition duration-200 text-lg bg-gray-50'
+        autoComplete='off'
       />
       <button
-        onClick={handleSubmit}
-        className='bg-blue-400 hover:bg-blue-200 cursor-pointer p-2 rounded-xl'
+        type='submit'
+        className='bg-gradient-to-r from-blue-500 to-blue-400 hover:from-blue-400 hover:to-blue-300 text-white cursor-pointer p-3 rounded-xl text-xl font-semibold shadow-md transition duration-200 flex items-center justify-center gap-2'
+        disabled={loading}
       >
-        Submit
+        {loading ? (
+          <span className='animate-pulse'>Translating...</span>
+        ) : (
+          <>
+            GO{" "}
+            <span role='img' aria-label='run'>
+              🏃‍♂️💨
+            </span>
+          </>
+        )}
       </button>
-      <p>{aiResponse}</p>
+      <DisplayResponse responseText={responseText} loading={loading} />
     </form>
   );
 }

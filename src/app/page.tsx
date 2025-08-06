@@ -2,26 +2,20 @@ import FormComponent from "@/components/formComponent";
 import React from "react";
 
 async function page() {
-  // Complete Handler function
-  const handler = async (language: string, input: string) => {
-    "use server";
-    console.log(language, input);
-    const res = await fetch(
-      `http://localhost:3000/api/perplexity?language=${language}&input=${input}`,
-      {
-        cache: "no-cache",
-      }
-    );
-    const body = await res.json();
-    if (body.error) return { error: body.error };
-    const response = body.data.kwargs.content;
-    console.log("Answer from home: ", response);
-    return { response };
-  };
   return (
-    <div className='mx-10 my-5'>
-      <FormComponent handler={handler} />
-    </div>
+    <main className='min-h-screen w-full bg-gradient-to-br from-blue-100 via-white to-blue-200 flex flex-col items-center justify-start py-10 px-4'>
+      <div className='w-full max-w-2xl mx-auto flex flex-col items-center'>
+        <div className='mb-8 text-center'>
+          <h1 className='text-4xl md:text-5xl font-extrabold  drop-shadow-lg mb-2 tracking-tight'>
+            LingoGO <span className='inline-block'>🚀</span>
+          </h1>
+          <p className='text-lg md:text-xl text-gray-600 font-medium'>
+            Powered by Langchain and Perplexity
+          </p>
+        </div>
+        <FormComponent />
+      </div>
+    </main>
   );
 }
 
