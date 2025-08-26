@@ -22,8 +22,8 @@
 ### Goal - V2 (Q/A chatbot)
 
 - UI will be similar to chatgpt or others
-- Documents and document loaders;
-- Text splitters;
+- Documents and document loaders; ✅
+- Text splitters; ✅
 - Embeddings;
 - Vector stores and retrievers.
 
