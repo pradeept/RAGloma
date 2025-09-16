@@ -14,7 +14,9 @@
   },
   "dependencies": {
     "@langchain/community": "^0.3.49",
-    "@langchain/core": "^0.3.66",
+    "@langchain/core": "^0.3.75",
+    "@langchain/mongodb": "^0.1.0",
+    "@langchain/ollama": "^0.2.4",
     "langchain": "^0.3.30",
     "motion": "^12.23.12",
     "next": "15.3.5",
