@@ -1,9 +1,11 @@
 import path from "path";
 import { PDFLoader } from "@langchain/community/document_loaders/fs/pdf";
 import { RecursiveCharacterTextSplitter } from "@langchain/textsplitters";
-import { OllamaEmbeddings } from "@langchain/ollama";
+import { Ollama, OllamaEmbeddings } from "@langchain/ollama";
 import { MongoDBAtlasVectorSearch } from "@langchain/mongodb";
 import { MongoClient } from "mongodb";
+import { ChatPromptTemplate } from "@langchain/core/prompts";
+import { pull } from "langchain/hub";
 
 export async function ragSetup() {
   const pdfPath = path.join(process.cwd(), "public/nke-10k-2023.pdf");
@@ -16,7 +18,7 @@ export async function ragSetup() {
     //   addStartIndex: true,
   });
 
-  const allSplits = await textSplitter.splitDocuments(pages);
+  // const allSplits = await textSplitter.splitDocuments(pages);
 
   // ---- Embeddings ----
   const embeddings = new OllamaEmbeddings({
@@ -34,46 +36,31 @@ export async function ragSetup() {
 
   const vectorStore = new MongoDBAtlasVectorSearch(embeddings, {
     collection: collection,
-    indexName: "vector_index",
+    indexName: "default",
     textKey: "text",
     embeddingKey: "embedding",
   });
 
   // --- Add docs ---
-  await vectorStore.addDocuments(allSplits).catch((e) => console.error(e));
+  // await vectorStore.addDocuments(allSplits).catch((e) => console.error(e));
 
   // Step 2: Example: Search for similar chunks
-  const query = "What was Nike's revenue in 2023?";
-  const results = await vectorStore.similaritySearch(query, 5);
+  const question = "Which products does Nike produce?";
+  const retrivedDocs = await vectorStore.similaritySearch(question, 5);
 
-  results.forEach((doc, i) => {
-    console.log(`Result ${i + 1}:`);
-    console.log(doc.pageContent);
+  // Step 3: Feed retrived docs as context and question to llm.
+  const llm = new Ollama({
+    baseUrl: process.env.OLLAMA_BASE_URL,
+    model: process.env.OLLAMA_MODEL,
   });
-  // console.log(allSplits[1].metadata);
+  const promptTemplate = await pull<ChatPromptTemplate>("rlm/rag-prompt");
+  const examplePrompt = await promptTemplate.invoke({
+    context: retrivedDocs,
+    question,
+  });
+  // console.log(examplePrompt)
+  const llmRes = await llm.invoke(examplePrompt);
+  console.log(llmRes);
 }
 
-/*
-Error
 
-[TypeError: fetch failed] {
-  [cause]: [Error [HeadersTimeoutError]: Headers Timeout Error] {
-    code: 'UND_ERR_HEADERS_TIMEOUT'
-  }
-}
- ⨯ unhandledRejection: [TypeError: fetch failed] {
-  [cause]: [Error [HeadersTimeoutError]: Headers Timeout Error] {
-    code: 'UND_ERR_HEADERS_TIMEOUT'
-  }
-}
- ⨯ unhandledRejection:  [TypeError: fetch failed] {
-  [cause]: [Error [HeadersTimeoutError]: Headers Timeout Error] {
-    code: 'UND_ERR_HEADERS_TIMEOUT'
-  }
-}
-[TypeError: fetch failed] {
-  [cause]: [Error [HeadersTimeoutError]: Headers Timeout Error] {
-    code: 'UND_ERR_HEADERS_TIMEOUT'
-  }
-}
-*/
