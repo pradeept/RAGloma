@@ -1,6 +1,6 @@
 "use client";
 import React, { FormEvent, useState } from "react";
-import DisplayResponse from "./DisplayResponse";
+import DisplayResponse from "./displayResponse";
 
 function FormComponent() {
   const [language, setLanguage] = useState<string | undefined>(undefined);
