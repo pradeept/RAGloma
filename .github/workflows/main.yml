@@ -1,4 +1,4 @@
-name: CI/CD 
+name: CI/CD
 on:
   push:
     branches:
@@ -9,6 +9,10 @@ on:
 jobs:
   security:
     runs-on: ubuntu-latest
+    permissions:
+      security-events: write
+      actions: read
+      contents: read
     steps:
       - uses: actions/checkout@master
 
