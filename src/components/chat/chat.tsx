@@ -1,10 +1,16 @@
 import React from "react";
 import InputBox from "./inputBox";
+import ChatBox from "./ChatWindow";
 
 function Chat() {
   return (
-    <div className="w-full">
-      <InputBox chatWithDoc={true} chatWithURL={false} />
+    <div className="w-full flex flex-col flex-1 h-full ">
+      <div className="flex-1 min-h-0">
+        <ChatBox />
+      </div>
+      <div className="sticky bottom-0 bg-background z-10">
+        <InputBox chatWithDoc={false} chatWithURL={false} />
+      </div>
     </div>
   );
 }

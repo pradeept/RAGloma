@@ -9,13 +9,12 @@ export async function GET(req: NextRequest) {
   headers.set("Connection", "keep-alive");
   const { searchParams } = new URL(req.url);
 
-  const language = searchParams.get("language");
-  const text = searchParams.get("text");
-  const stream = await perplexity(language, text);
+  const prompt = searchParams.get("prompt");
+  const stream = await perplexity(prompt!);
 
-  if (!language || !text) {
+  if (!prompt) {
     return NextResponse.json(
-      { error: "Missing query parameters" },
+      { error: "Missing query parameter" },
       { status: 400 }
     );
   }

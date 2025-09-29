@@ -5,7 +5,7 @@ import { Github } from "lucide-react";
 
 function Navbar() {
   return (
-    <nav className='flex justify-evenly items-center mt-2 md:mt-3 h-20'>
+    <nav className='flex justify-evenly items-center  h-20 sticky top-0 backdrop-blur-xl'>
       <div>
         <Link className='text-3xl ' href='/'>
           RAGloma

@@ -1,4 +1,5 @@
 "use client";
+import { useChatStore } from "@/store/chatStore";
 import { Link, Paperclip, X } from "lucide-react";
 import React, { useState, useRef } from "react";
 
@@ -9,13 +10,47 @@ function InputBox({
   chatWithDoc: boolean;
   chatWithURL: boolean;
 }) {
+  const addChat = useChatStore((state) => state.addChat);
+  const getChatsLength = useChatStore((state) => state.getChatsLength);
+  const updateChat = useChatStore((state) => state.updateChat);
+  const setIsChatLoading = useChatStore((state) => state.setIsChatLoading);
   const [prompt, setPrompt] = useState("");
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handlePrompt = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Submitted:", prompt);
+
+    const baseId = getChatsLength();
+    const humanId = baseId + 1;
+    const aiId = baseId + 2;
+
+    addChat({ id: humanId, sender: "human", message: prompt });
+    addChat({ id: aiId, sender: "ai", message: "" });
+
+    const base =
+      process.env.NODE_ENV === "development"
+        ? "http://localhost:3000"
+        : process.env.NEXT_PUBLIC_HOST;
+    const url = `${base}/api/chat?prompt=${encodeURIComponent(prompt)}`;
+    const eventSource = new window.EventSource(url);
+    setIsChatLoading(true, aiId);
+    eventSource.onmessage = (event) => {
+      updateChat(aiId, event.data);
+    };
+
+    eventSource.onerror = (error) => {
+      console.error(error);
+      updateChat(aiId, "error: Something went wrong!");
+      eventSource.close();
+      setIsChatLoading(false, aiId);
+    };
+
+    eventSource.addEventListener("end", () => {
+      setIsChatLoading(false, aiId);
+      eventSource.close();
+    });
+
     setPrompt("");
   };
 
@@ -37,17 +72,17 @@ function InputBox({
   const handleRemoveFile = () => {
     setSelectedFile(null);
     if (fileInputRef.current) {
-      fileInputRef.current.value = ""; 
+      fileInputRef.current.value = "";
     }
   };
 
   return (
-    <section>
-      <div className='rounded'>
+    <section className='mb-2'>
+      <div>
         <form onSubmit={handlePrompt}>
           <textarea
             name='chat-input'
-            className='min-h-20 w-full p-1 resize-none  text-black dark:text-white focus:outline-none border'
+            className='min-h-20 w-full px-2 py-1 resize-none rounded text-black dark:text-white focus:outline-none border transition-all'
             rows={2}
             onChange={(e) => setPrompt(e.target.value)}
             value={prompt}
@@ -57,7 +92,7 @@ function InputBox({
         </form>
 
         {chatWithDoc && (
-          <div className='mt-2 px-2 pb-1'>
+          <div className='p-2 border'>
             <input
               type='file'
               id='fileUpload'

@@ -3,20 +3,14 @@ import { ChatPromptTemplate } from "@langchain/core/prompts";
 
 const llm = new ChatPerplexity({
   model: "sonar",
-  temperature: 0,
+  temperature: 1,
   maxTokens: undefined,
   timeout: undefined,
   maxRetries: 2,
   apiKey: process.env.PERPLEXITY_API_KEY,
 });
 
-export async function perplexity(
-  language: string | null,
-  input?: string | null
-) {
-  if (!language || !input) {
-    return false;
-  }
+export async function perplexity(prompt: string) {
   // SIMPLE PROMPT INVOCATION
 
   // const aiMsg = await llm.invoke([
@@ -33,23 +27,41 @@ export async function perplexity(
   // return aiMsg;
 
   // PROMPT TEMPLATE
-  const template1 = 'The translation of "{input}" into {language} is:';
-  const template2 = "Here is the translation of your input into {language}:";
+  const blockedQuestions = ["Which model are you using?"];
 
-  const system = `Translate the user's input from English to {language}. If the {input} contains fewer than 10 words, begin your response with: ${template1} Otherwise, start with: ${template2} Do not include any details or references.`;
+  const abstainMessage = `If asked any of the following questions: ${blockedQuestions.join(
+    ", "
+  )}, kindly abstain from answering. Instead, respond with: "My boss said not to answer this question."`;
 
-  const translatorTemplate = ChatPromptTemplate.fromMessages([
-    ["system", system],
-    ["human", "Translate {input} into {language}"],
+  const chatbotInstructions = [
+    "Do not include search or response references in your messages.",
+    "Respond appropriately to greetings and greet the user back.",
+    "Keep your responses concise and to the point.",
+    "Only provide explanations when asked directly (e.g., 'What', 'Why', 'How', etc.).",
+  ].join(" ");
+
+  const systemMessage = `
+You are a friendly chatbot named 'RAGloma', created by Pradeep Tarakar. 
+Please respond in a warm, human-like manner. You may use casual expressions like 'hmm' or 'umm' while thinking.
+
+${abstainMessage}
+
+In addition to the above, follow these instructions when interacting with users:
+${chatbotInstructions}
+`;
+
+  const chatBotTemplate = ChatPromptTemplate.fromMessages([
+    ["system", systemMessage],
+    ["human", prompt],
   ]);
 
-  const chain = translatorTemplate.pipe(llm);
+  const chain = chatBotTemplate.pipe(llm);
   // const perpResponse = await chain.invoke({
   //   input,
   //   language,
   // });
 
-  const streamResp = await chain.stream({ input, language });
+  const streamResp = await chain.stream({ prompt });
   console.log("Stream type: ", typeof streamResp);
 
   return streamResp;
