@@ -7,8 +7,7 @@ export const ollamaChat = async (prompt: string) => {
     maxRetries: 2,
     // temperature: 1,
     streaming: true,
-    baseUrl:process.env.OLLAMA_BASE_URL,
-
+    baseUrl: process.env.OLLAMA_BASE_URL,
   });
 
   const blockedQuestions = ["Which model are you using?"];
@@ -35,11 +34,12 @@ ${chatbotInstructions}
 `;
   const chatBotTemplate = ChatPromptTemplate.fromMessages([
     ["system", systemMessage],
-    ["human", prompt],
+    ["human", "{input}"],
   ]);
+  console.log(chatBotTemplate);
   const chain = chatBotTemplate.pipe(llm);
 
-  const streamResp = await chain.stream({ prompt });
+  const streamResp = await chain.stream({ input: prompt });
   console.log("Stream type: ", typeof streamResp);
 
   return streamResp;

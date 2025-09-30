@@ -61,7 +61,7 @@ export const useChatStore = create<ChatStoreState>((set, get) => ({
       if (index != 0) {
         updatedChats[index] = {
           ...updatedChats[index],
-          message: updatedChats[index].message + " " + message,
+          message: updatedChats[index].message + message,
         };
       }
       return {
