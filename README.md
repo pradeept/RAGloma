@@ -1,6 +1,7 @@
-# V1
-
-### Translator App - using chat models and prompt templates.
+<center>
+ <h1>RAGloma</h1>
+ <p>In Progress - A modern fullstack app to chat with LLMs or a Document or a valid link.</p>
+</center>
 
 ## Tech Stack
 
@@ -10,28 +11,21 @@
 - Perplexity API
 ```
 
-### Goal - V1
-
-- Simple prompt + configuration ✅
-- Prompt template ✅
-- User Input form ✅
-- Refining LLM response ✅
-- Response streaming(SSE) with UX ✅
-
 --- 
-### Goal - V2 (Q/A chatbot)
+### Modes
+1) Chatbot
+2) Chat with document
+3) Chat with URL
+
+### Goal
 
 - UI with Chat with LLM, Chat with Doc, Chat with link modes.
 - Documents and document loaders; ✅
 - Text splitters; ✅
 - Embeddings; ✅
 - Vector stores and retrievers. ✅
-- Integrate LLM with response streaming; 
+- Integrate LLM with response streaming; ✅
 
-#### Enchancements: 
+### In - Progress: 
 - Check the vector db for doc hash before creating and adding embeddings for a doc.
 - Delete the embeddings once the user disconnects or deletes through UI.
-
-### SS 🖼️
-
-![SS](./v1_SS.png)
