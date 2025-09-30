@@ -1,4 +1,5 @@
-import { perplexity } from "@/utils/perplexity";
+import { ollamaChat } from "@/utils/ollama";
+// import { perplexity } from "@/utils/perplexity";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(req: NextRequest) {
@@ -10,8 +11,8 @@ export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
 
   const prompt = searchParams.get("prompt");
-  const stream = await perplexity(prompt!);
-
+  // const stream = await perplexity(prompt!);
+  const stream = await ollamaChat(prompt!);
   if (!prompt) {
     return NextResponse.json(
       { error: "Missing query parameter" },
