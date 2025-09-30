@@ -25,7 +25,7 @@ export interface ChatStoreState {
 export const useChatStore = create<ChatStoreState>((set, get) => ({
   //initial state
   chats: [],
-  llm: "gemma",
+  llm: "perplexity",
   mode: "chat",
   isStreaming: false,
   streamingChatId: undefined,
