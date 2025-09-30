@@ -1,22 +1,49 @@
 "use client";
 import { useChatStore } from "@/store/chatStore";
 import { Link, Paperclip, X } from "lucide-react";
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../ui/select";
+import { usePathname } from "next/navigation";
 
-function InputBox({
-  chatWithDoc,
-  chatWithURL,
-}: {
-  chatWithDoc: boolean;
-  chatWithURL: boolean;
-}) {
+function InputBox({}) {
   const addChat = useChatStore((state) => state.addChat);
   const getChatsLength = useChatStore((state) => state.getChatsLength);
   const updateChat = useChatStore((state) => state.updateChat);
+  const llm = useChatStore((state) => state.llm);
+  const setLlm = useChatStore((state) => state.setLlm);
+  const mode = useChatStore((state) => state.mode);
+  const setMode = useChatStore((state) => state.setMode);
   const setIsChatLoading = useChatStore((state) => state.setIsChatLoading);
   const [prompt, setPrompt] = useState("");
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const path = usePathname();
+
+  useEffect(() => {
+    switch (path) {
+      case "chat":
+        setMode("chat");
+        break;
+      case "/doc-chat":
+        setMode("doc-chat");
+        break;
+      case "/url-chat":
+        setMode("url-chat");
+        break;
+    }
+  }, [path, setMode]);
+
+  useEffect(() => {
+    if (mode === "doc-chat" || mode === "url-chat") setLlm("gemma");
+  }, [mode, setLlm]);
 
   const handlePrompt = (e: React.FormEvent) => {
     e.preventDefault();
@@ -91,7 +118,7 @@ function InputBox({
           />
         </form>
 
-        {chatWithDoc && (
+        {mode === "doc-chat" && (
           <div className='p-2 border'>
             <input
               type='file'
@@ -125,7 +152,7 @@ function InputBox({
           </div>
         )}
 
-        {chatWithURL && (
+        {mode === "url-chat" && (
           <div className='flex justify-center items-center gap-2 mt-2'>
             <Link size={22} />
             <input
@@ -135,6 +162,22 @@ function InputBox({
             />
           </div>
         )}
+        {/* Model selection */}
+        <div className='absolute right-0 mt-1'>
+          <Select
+            onValueChange={(val) => setLlm(val as "perplexity" | "gemma")}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder={llm} />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectGroup>
+                <SelectItem value='Perplexity'>Perplexity</SelectItem>
+                <SelectItem value='Gemma'>Gemma</SelectItem>
+              </SelectGroup>
+            </SelectContent>
+          </Select>
+        </div>
       </div>
     </section>
   );
