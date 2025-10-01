@@ -59,7 +59,9 @@ function InputBox({}) {
       process.env.NODE_ENV === "development"
         ? "http://localhost:3000"
         : process.env.NEXT_PUBLIC_HOST;
-    const url = `${base}/api/chat?prompt=${encodeURIComponent(prompt)}`;
+    const url = `${base}/api/chat?prompt=${encodeURIComponent(
+      prompt
+    )}&llm=${llm}`;
     const eventSource = new window.EventSource(url);
     setIsChatLoading(true, aiId);
     eventSource.onmessage = (event) => {
@@ -172,8 +174,8 @@ function InputBox({}) {
             </SelectTrigger>
             <SelectContent>
               <SelectGroup>
-                <SelectItem value='Perplexity'>Perplexity</SelectItem>
-                <SelectItem value='Gemma'>Gemma</SelectItem>
+                <SelectItem value='perplexity'>Perplexity</SelectItem>
+                <SelectItem value='gemma'>Gemma</SelectItem>
               </SelectGroup>
             </SelectContent>
           </Select>

@@ -36,7 +36,6 @@ ${chatbotInstructions}
     ["system", systemMessage],
     ["human", "{input}"],
   ]);
-  console.log(chatBotTemplate);
   const chain = chatBotTemplate.pipe(llm);
 
   const streamResp = await chain.stream({ input: prompt });
