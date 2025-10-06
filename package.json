@@ -14,7 +14,7 @@
   },
   "dependencies": {
     "@langchain/community": "^0.3.49",
-    "@langchain/core": "^0.3.75",
+    "@langchain/core": "^0.3.78",
     "@langchain/mongodb": "^0.1.0",
     "@langchain/ollama": "^0.2.4",
     "@radix-ui/react-dropdown-menu": "^2.1.16",
