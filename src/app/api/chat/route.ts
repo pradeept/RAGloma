@@ -1,5 +1,5 @@
-import { ollamaChat } from "@/utils/ollama";
-import { perplexity } from "@/utils/perplexity";
+import { ollamaChat } from "@/services/chat/ollama";
+import { perplexity } from "@/services/chat/perplexity";
 // import { perplexity } from "@/utils/perplexity";
 import { NextRequest, NextResponse } from "next/server";
 

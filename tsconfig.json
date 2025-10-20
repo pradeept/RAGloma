@@ -27,7 +27,7 @@
     "**/*.ts",
     "**/*.tsx",
     ".next/types/**/*.ts",
-    "src/utils/rag.ts"
+    "src/services/reference.ts"
   ],
   "exclude": ["node_modules"]
 }

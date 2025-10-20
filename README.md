@@ -25,7 +25,8 @@
 - Embeddings; ✅
 - Vector stores and retrievers. ✅
 - Integrate LLM with response streaming; ✅
+- Check the vector db for doc hash before creating and adding embeddings for a doc. ✅ 
 
 ### In - Progress: 
-- Check the vector db for doc hash before creating and adding embeddings for a doc.
+- Add middleware to limit number of requests.
 - Delete the embeddings once the user disconnects or deletes through UI.

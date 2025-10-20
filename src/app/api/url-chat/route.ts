@@ -1,4 +1,4 @@
-import { ragSetup } from "@/utils/rag";
+import { ragSetup } from "@/services/reference";
 
 export async function GET() {
   await ragSetup();

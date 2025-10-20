@@ -105,6 +105,18 @@ function InputBox({}) {
     }
   };
 
+  const handleUpload = async () => {
+    if (selectedFile) {
+      const formData = new FormData();
+      formData.append("file", selectedFile);
+
+      await fetch("/api/doc-chat", {
+        method: "POST",
+        body: formData,
+      });
+    }
+  };
+
   return (
     <section className='mb-2'>
       <div>
@@ -135,6 +147,7 @@ function InputBox({}) {
             >
               <Paperclip />
               <small>Attach your file</small>
+              <button onClick={handleUpload}>Upload</button>
             </label>
 
             {/* Show selected file name with remove button */}
