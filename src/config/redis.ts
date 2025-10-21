@@ -1,16 +1,13 @@
-import redis, { RedisClientType } from "redis"
+import { Redis } from "@upstash/redis";
 
+let client: Redis | null = null;
 
-let client:RedisClientType|null = null;
-
-export const createCache = async():Promise<RedisClientType>=>{
-    if(!client){
-        client = await redis.createClient({
-            url:process.env.REDIS_URL
-        })
-        client.connect()
-    }
-    return client;
-}
-
-
+export const createCache = async (): Promise<Redis> => {
+  if (!client) {
+    client = new Redis({
+      url: process.env.UPSTASH_REDIS_URL,
+      token: process.env.UPSTASH_REDIS_TOKEN,
+    });
+  }
+  return client;
+};

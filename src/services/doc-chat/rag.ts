@@ -7,7 +7,7 @@ export async function chatWithDoc() {
   // example query
   const query = "Explain business activity";
 
-  // Search the dense index
+  // search the dense index
   const results = await index.searchRecords({
     query: {
       topK: 5,
