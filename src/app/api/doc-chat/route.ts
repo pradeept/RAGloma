@@ -1,8 +1,44 @@
-import { NextResponse } from "next/server";
+import { chatWithDoc } from "@/services/doc-chat/rag";
+import { NextRequest, NextResponse } from "next/server";
 
-export async function POST() {
-  // get the query in formdata
-  
-  return NextResponse.json({msg:"You hit /api/doc-chat"});
+export async function GET(req: NextRequest) {
+  // Setting the proper headers for SSE
+  const headers = new Headers();
+  headers.set("Content-Type", "text/event-stream");
+  headers.set("Transfer-Encoding", "chunked");
+  headers.set("Connection", "keep-alive");
+  const { searchParams } = new URL(req.url);
 
+  const prompt = searchParams.get("prompt");
+  // const llm = searchParams.get("llm");
+
+  const stream = await chatWithDoc(prompt!);
+
+  if (!prompt) {
+    return NextResponse.json(
+      { error: "Missing query parameter" },
+      { status: 400 }
+    );
+  }
+
+  const readableStream = new ReadableStream({
+    async start(controller) {
+      try {
+        if (stream) {
+          for await (const chunk of stream) {
+            const content = chunk || "";
+            // Format as SSE event
+            controller.enqueue(`data: ${content}\n\n`);
+          }
+          controller.enqueue("event: end\ndata: \n\n");
+          controller.close();
+        }
+      } catch (err) {
+        controller.error(err);
+      }
+    },
+  });
+
+  // Return the response with the stream
+  return new Response(readableStream, { headers });
 }

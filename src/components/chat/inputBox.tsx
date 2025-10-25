@@ -1,7 +1,7 @@
 "use client";
 import { useChatStore } from "@/store/chatStore";
-import { Check, Link, Paperclip, ShieldAlert, X } from "lucide-react";
-import React, { useState, useRef, useEffect } from "react";
+import {  Link,  } from "lucide-react";
+import React, { useState,  useEffect } from "react";
 import {
   Select,
   SelectContent,
@@ -11,6 +11,7 @@ import {
   SelectValue,
 } from "../ui/select";
 import { usePathname } from "next/navigation";
+import FileUpload from "./fileUpload";
 
 export default function InputBox() {
   const addChat = useChatStore((state) => state.addChat);
@@ -22,11 +23,6 @@ export default function InputBox() {
   const setMode = useChatStore((state) => state.setMode);
   const setIsChatLoading = useChatStore((state) => state.setIsChatLoading);
   const [prompt, setPrompt] = useState("");
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const [uploadStatus, setUploadStatus] = useState<
-    undefined | boolean | "loading"
-  >(undefined);
 
   const path = usePathname();
 
@@ -48,9 +44,7 @@ export default function InputBox() {
     if (mode === "doc-chat" || mode === "url-chat") setLlm("gemma");
   }, [mode, setLlm]);
 
-  useEffect(() => {
-    setUploadStatus(undefined);
-  }, [selectedFile]);
+
 
   const handlePrompt = (e: React.FormEvent) => {
     e.preventDefault();
@@ -62,13 +56,15 @@ export default function InputBox() {
     addChat({ id: humanId, sender: "human", message: prompt });
     addChat({ id: aiId, sender: "ai", message: "" });
 
+    // stream llm response to store
     const base =
       process.env.NODE_ENV === "development"
         ? "http://localhost:3000"
         : process.env.NEXT_PUBLIC_HOST;
-    const url = `${base}/api/chat?prompt=${encodeURIComponent(
+    const url = `${base}/api/${mode}?prompt=${encodeURIComponent(
       prompt
     )}&llm=${llm}`;
+
     const eventSource = new window.EventSource(url);
     setIsChatLoading(true, aiId);
     eventSource.onmessage = (event) => {
@@ -90,50 +86,12 @@ export default function InputBox() {
     setPrompt("");
   };
 
+  // new-line and prompt submission handler
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       const form = e.currentTarget.form;
       if (form) form.requestSubmit();
-    }
-  };
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      setSelectedFile(file);
-    }
-  };
-
-  const handleRemoveFile = () => {
-    setSelectedFile(null);
-    if (fileInputRef.current) {
-      fileInputRef.current.value = "";
-    }
-  };
-
-  const handleUpload = async () => {
-    setUploadStatus("loading");
-    if (selectedFile) {
-      const formData = new FormData();
-      formData.append("file", selectedFile);
-
-      await fetch("/api/doc-chat/upload", {
-        method: "POST",
-        body: formData,
-      })
-        .then((res) => {
-          return res.json();
-        })
-        .then((body: { message: string; error: null | string }) => {
-          if (!body.error) {
-            setUploadStatus(true);
-          }
-        })
-        .catch((e) => {
-          console.error(e);
-          setUploadStatus(false);
-        });
     }
   };
 
@@ -152,64 +110,7 @@ export default function InputBox() {
           />
         </form>
 
-        {mode === "doc-chat" && (
-          <div className='p-2 border'>
-            <div className='flex justify-between items-center'>
-              {/* Select file */}
-              <div>
-                <input
-                  type='file'
-                  id='fileUpload'
-                  ref={fileInputRef}
-                  className='hidden'
-                  onChange={handleFileChange}
-                />
-                <label
-                  htmlFor='fileUpload'
-                  className='cursor-pointer flex items-center gap-1'
-                >
-                  <Paperclip />
-                  <small>Attach your file</small>
-                </label>
-              </div>
-              {/* Upload button */}
-              <div className='flex items-center gap-1'>
-                <button
-                  onClick={handleUpload}
-                  className='border p-1 rounded m-1 cursor-pointer disabled:cursor-not-allowed'
-                  disabled={!selectedFile || uploadStatus === true}
-                >
-                  {uploadStatus === "loading" ? "Uploading..." : "Upload"}
-                </button>
-                {uploadStatus === true && (
-                  <span title='File uploaded successfully'>
-                    <Check className='text-green-400' />
-                  </span>
-                )}
-                {uploadStatus === false && (
-                  <span title='failed to upload the file'>
-                    <ShieldAlert className='text-red-400' />
-                  </span>
-                )}
-              </div>
-            </div>
-
-            {/* Show selected file name with remove button */}
-            {selectedFile && (
-              <div className='flex items-center justify-between mt-1 text-sm text-gray-600 border p-1 rounded'>
-                <span className='truncate'>📄 {selectedFile.name}</span>
-                <button
-                  type='button'
-                  onClick={handleRemoveFile}
-                  className='ml-2 text-red-500 hover:text-red-700'
-                  title='Remove file'
-                >
-                  <X size={16} />
-                </button>
-              </div>
-            )}
-          </div>
-        )}
+        {mode === "doc-chat" && <FileUpload />}
 
         {mode === "url-chat" && (
           <div className='flex justify-center items-center gap-2 mt-2'>
@@ -231,7 +132,9 @@ export default function InputBox() {
             </SelectTrigger>
             <SelectContent>
               <SelectGroup>
-                <SelectItem value='perplexity'>Perplexity</SelectItem>
+                {mode === "chat" && (
+                  <SelectItem value='perplexity'>Perplexity</SelectItem>
+                )}
                 <SelectItem value='gemma'>Gemma</SelectItem>
               </SelectGroup>
             </SelectContent>

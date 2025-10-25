@@ -1,8 +1,12 @@
 import { Pinecone, } from "@pinecone-database/pinecone";
 
+export let pineClient:null | Pinecone = null;
+
 const createIndex = async ()=>{
   // create a pine client
-  const pineClient = new Pinecone({ apiKey: process.env.PINECONE_KEY || "" });
+  if(!pineClient){
+    pineClient = new Pinecone({ apiKey: process.env.PINECONE_KEY || "" });
+  }
 
   const indexName = "ragloma";
 

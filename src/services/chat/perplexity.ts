@@ -11,22 +11,7 @@ const llm = new ChatPerplexity({
 });
 
 export async function perplexity(prompt: string) {
-  // SIMPLE PROMPT INVOCATION
-
-  // const aiMsg = await llm.invoke([
-  //   {
-  //     role: "system",
-  //     content:
-  //       "You are a helpful assistant that translates English to French. Translate the user sentence.",
-  //   },
-  //   {
-  //     role: "user",
-  //     content: "I love programming.",
-  //   },
-  // ]);
-  // return aiMsg;
-
-  // PROMPT TEMPLATE
+  // prompt template
   const blockedQuestions = ["Which model are you using?"];
 
   const abstainMessage = `If asked any of the following questions: ${blockedQuestions.join(
@@ -56,13 +41,9 @@ ${chatbotInstructions}
   ]);
 
   const chain = chatBotTemplate.pipe(llm);
-  // const perpResponse = await chain.invoke({
-  //   input,
-  //   language,
-  // });
 
+  // response streaming
   const streamResp = await chain.stream({ prompt });
-  console.log("Stream type: ", typeof streamResp);
 
   return streamResp;
 }

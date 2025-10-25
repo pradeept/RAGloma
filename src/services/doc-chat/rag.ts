@@ -1,12 +1,10 @@
+import { createIndex } from "@/lib/vector-store";
 import { ChatPromptTemplate } from "@langchain/core/prompts";
 import { Ollama } from "@langchain/ollama";
 import { pull } from "langchain/hub";
 
-export async function chatWithDoc() {
-  
-  // example query
-  const query = "Explain business activity";
-
+export async function chatWithDoc(query: string) {
+  const index = await createIndex();
   // search the dense index
   const results = await index.searchRecords({
     query: {
@@ -24,15 +22,17 @@ export async function chatWithDoc() {
   // use rag-template pulled from langchain hub
   const promptTemplate = await pull<ChatPromptTemplate>("rlm/rag-prompt");
 
+  const contextString = results.result.hits
+    .map((hit) => hit.fields.chunk_text)
+    .join(",")
+    .toString();
   // prepare prompt
   const prompt = await promptTemplate.invoke({
     context: [results.result.hits],
-    question: query,
+    question: contextString,
   });
 
   // invoke on specified llm
-  const llmRes = await llm.invoke(prompt);
-
-  // log the response for now
-  console.log(llmRes);
+  const llmRes = await llm.stream(prompt);
+  return llmRes;
 }

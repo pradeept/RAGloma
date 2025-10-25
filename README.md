@@ -28,5 +28,20 @@
 - Check the vector db for doc hash before creating and adding embeddings for a doc. ✅ 
 
 ### In - Progress: 
+- Make chat window in doc-chat functional
 - Add middleware to limit number of requests.
-- Delete the embeddings once the user disconnects or deletes through UI.
+
+
+### Example .env
+
+```shell
+PERPLEXITY_API_KEY=""
+NEXT_PUBLIC_HOST="http://localhost:3000"
+EMBEDDING_MODEL="dengcao/Qwen3-Embedding-0.6B:Q8_0" #ollama 
+OLLAMA_BASE_URL="http://localhost:11434"
+OLLAMA_MODEL="gemma3:4b"
+PINECONE_KEY=""
+#optional
+UPSTASH_REDIS_URL="" 
+UPSTASH_REDIS_TOKEN=""
+```
