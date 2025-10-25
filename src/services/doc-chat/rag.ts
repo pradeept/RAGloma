@@ -8,7 +8,7 @@ export async function chatWithDoc(query: string) {
   // search the dense index
   const results = await index.searchRecords({
     query: {
-      topK: 5,
+      topK: 2,
       inputs: { text: query },
     },
   });
