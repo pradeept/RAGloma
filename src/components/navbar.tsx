@@ -2,13 +2,14 @@ import React from "react";
 import { ModeToggle } from "./theme-toggle";
 import Link from "next/link";
 import { Github } from "lucide-react";
+import Logo from "./logo";
 
 function Navbar() {
   return (
     <nav className='flex justify-evenly items-center  h-20 sticky top-0 backdrop-blur-xl'>
       <div>
         <Link className='text-3xl ' href='/'>
-          RAGloma
+          <Logo />
         </Link>
       </div>
       <div className="flex gap-2 md:gap-5 items-center">

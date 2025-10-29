@@ -1,6 +1,6 @@
 import { createCache } from "@/config/redis";
-import { hasher } from "@/lib/hasher";
-import { generateSessionId } from "@/lib/sid-generator";
+import { hasher } from "@/utils/hasher";
+import { generateSessionId } from "@/utils/sid-generator";
 import { uploadVectors } from "@/services/doc-chat/upload-vectors";
 import { cookies } from "next/headers";
 import { NextResponse, type NextRequest } from "next/server";

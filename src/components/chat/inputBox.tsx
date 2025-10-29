@@ -1,7 +1,7 @@
 "use client";
 import { useChatStore } from "@/store/chatStore";
-import {  Link,  } from "lucide-react";
-import React, { useState,  useEffect } from "react";
+import { Link } from "lucide-react";
+import React, { useState, useEffect } from "react";
 import {
   Select,
   SelectContent,
@@ -43,8 +43,6 @@ export default function InputBox() {
   useEffect(() => {
     if (mode === "doc-chat" || mode === "url-chat") setLlm("gemma");
   }, [mode, setLlm]);
-
-
 
   const handlePrompt = (e: React.FormEvent) => {
     e.preventDefault();
@@ -133,9 +131,9 @@ export default function InputBox() {
             <SelectContent>
               <SelectGroup>
                 {mode === "chat" && (
-                  <SelectItem value='perplexity'>Perplexity</SelectItem>
+                  <SelectItem value='perplexity'>perplexity</SelectItem>
                 )}
-                <SelectItem value='gemma'>Gemma</SelectItem>
+                <SelectItem value='gemma'>gemma</SelectItem>
               </SelectGroup>
             </SelectContent>
           </Select>

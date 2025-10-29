@@ -1,6 +1,6 @@
 "use client";
 import React, { useEffect, useRef } from "react";
-import SingleChat from "./SingleChat";
+import SingleChat from "./singleChat";
 import { useChatStore } from "@/store/chatStore";
 
 function ChatWindow() {

@@ -1,6 +1,6 @@
 import React from "react";
 import InputBox from "./inputBox";
-import ChatBox from "./ChatWindow";
+import ChatBox from "./chatWindow";
 
 async function Chat() {
   return (

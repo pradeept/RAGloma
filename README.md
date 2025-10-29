@@ -1,7 +1,7 @@
-<center>
+<div align='center'>
  <h1>RAGloma</h1>
  <p>A modern fullstack app for chatting with LLMs, documents, or a web links.</p>
-</center>
+</div>
 
 ## 🧩 Pre-requisites
 
