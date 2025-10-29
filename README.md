@@ -1,5 +1,5 @@
 <div align='center'>
- <h1>RAGloma</h1>
+<img src='./src/app/favicon.ico' width="80" height="80" alt="logo"/>
  <p>A modern fullstack app for chatting with LLMs, documents, or a web links.</p>
 </div>
 
