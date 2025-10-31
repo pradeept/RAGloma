@@ -9,7 +9,7 @@
 - Ollama — Download here
 - LLM — gemma3:4b, or any other model supported by your system specifications
 - Embedding Model — dengcao/Qwen3-Embedding-0.6B:Q8_0
-- Minimum Free RAM — 8 GB
+- Minimum Free RAM — 7 GB (_if you use document mode or local llms in chat mode_)
 
 ## 🛠️ Tech Stack
 
