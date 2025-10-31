@@ -1,5 +1,5 @@
 <div align='center'>
-<img src='./src/app/favicon.ico' width="80" height="80" alt="logo"/>
+<img src='./src/app/favicon.ico' width="130" height="130" alt="logo"/>
  <p>A modern fullstack app for chatting with LLMs, documents, or a web links.</p>
 </div>
 
