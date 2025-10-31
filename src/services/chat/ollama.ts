@@ -1,45 +1,49 @@
-import { ChatPromptTemplate } from "@langchain/core/prompts";
+"use server";
+import { chatbotInstructions } from "@/utils/chatbot-instructions";
+import { stm } from "@/utils/short-term-memory";
+import { AIMessage, HumanMessage } from "@langchain/core/messages";
+import {
+  ChatPromptTemplate,
+  MessagesPlaceholder,
+} from "@langchain/core/prompts";
 import { ChatOllama } from "@langchain/ollama";
 
-export const ollamaChat = async (prompt: string) => {
-  const llm = new ChatOllama({
-    model: process.env.OLLAMA_MODEL,
-    maxRetries: 2,
-    // temperature: 1,
-    streaming: true,
-    baseUrl: process.env.OLLAMA_BASE_URL,
-  });
+const llm = new ChatOllama({
+  model: process.env.OLLAMA_MODEL,
+  maxRetries: 2,
+  // temperature: 1,
+  streaming: true,
+  baseUrl: process.env.OLLAMA_BASE_URL,
+});
 
-  const blockedQuestions = ["Which model are you using?"];
+const memory = stm;
 
-  const abstainMessage = `If asked any of the following questions: ${blockedQuestions.join(
-    ", "
-  )}, kindly abstain from answering. Instead, respond with: "My boss said not to answer this question."`;
+export const ollamaChat = async (sessionId: string, prompt: string) => {
+  // instructions for llm
+  const instructions = chatbotInstructions();
 
-  const chatbotInstructions = [
-    "Do not include search or response references in your messages.",
-    "Respond appropriately to greetings and greet the user back.",
-    "Keep your responses concise and to the point.",
-    "Only provide explanations when asked directly (e.g., 'What', 'Why', 'How', etc.).",
-  ].join(" ");
+  let chat_history: (AIMessage | HumanMessage)[] | null = null;
 
-  const systemMessage = `
-You are a friendly chatbot named 'RAGloma', created by Pradeep Tarakar. 
-Please respond in a warm, human-like manner. You may use casual expressions like 'hmm' or 'umm' while thinking.
+  chat_history = memory.getMessages(sessionId);
 
-${abstainMessage}
-
-In addition to the above, follow these instructions when interacting with users:
-${chatbotInstructions}
-`;
+  // prompt template
   const chatBotTemplate = ChatPromptTemplate.fromMessages([
-    ["system", systemMessage],
+    ["developer", instructions],
+    new MessagesPlaceholder("chat_history"),
     ["human", "{input}"],
   ]);
+
   const chain = chatBotTemplate.pipe(llm);
 
-  const streamResp = await chain.stream({ input: prompt });
-  console.log("Stream type: ", typeof streamResp);
+  // chat_history should be of BaseMessage type
+  if (!chat_history) {
+    chat_history = [new HumanMessage(""), new AIMessage("")];
+  }
+
+  const streamResp = await chain.stream({ input: prompt, chat_history });
+
+  // update prompt to store
+  memory.insertNewConversation(sessionId!, new HumanMessage(prompt));
 
   return streamResp;
 };
