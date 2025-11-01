@@ -39,10 +39,8 @@
   - Chat with URL _(coming soon)_
 
 ## 🔮 Upcoming Enhancements
-
-- Namespace-based vector separation for files.
-- Contextual memory for persistent conversations.
-- Middleware to limit API requests and prevent overuse.
+- Short-term-memory for doc-chat mode
+- Support for OpenAI api
 
 ## ⚙️ Example `.env` Configuration
 
