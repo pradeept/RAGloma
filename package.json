@@ -4,7 +4,10 @@
   "private": true,
   "author": {
     "name": "Pradeep Tarakar",
-    "url": "https://pradeept.netlify.app"
+    "url": "https://pradeept.dev"
+  },
+  "repository": {
+    "url": "https://github.com/pradeept/RAGloma"
   },
   "scripts": {
     "dev": "next dev --turbopack",
