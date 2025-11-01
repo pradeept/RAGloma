@@ -1,35 +1,80 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createCache } from "./config/redis";
-import { cookies } from "next/headers";
+import { generateSessionId } from "./utils/sid-generator";
 
-export default async function middleware(req: NextRequest) {
-  const cookieStore = await cookies();
-  const sessionCookie = cookieStore.get("session")?.value;
+async function session(req: NextRequest) {
+  const sessionIdFromCookie = req.cookies.get("session-id")?.value;
+
+  if (!sessionIdFromCookie) {
+    // generate a new session ID
+    const newSessionId = generateSessionId();
+
+    // set cookie via response
+    const res = NextResponse.next();
+    res.cookies.set("session-id", newSessionId, {
+      path: "/",
+      maxAge: 60 * 60, // 1 hour
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+    });
+
+    return res;
+  }
+
+  // If already has session ID, continue
+  return NextResponse.next();
+}
+
+async function rateLimiter(req: NextRequest) {
+  const sessionCookie = req.cookies.get("rate-id")?.value;
 
   if (!sessionCookie) {
-    return NextResponse.json({
-      status: 400,
-      msg: "Bad request, please upload the file to send queries",
-    });
-  } else {
-    // get key from cache
-    const client = await createCache();
-    const tokensLeft = await client.get(sessionCookie);
-
-    if (tokensLeft) {
-      await client.decr(sessionCookie);
-      return NextResponse.next();
-    } else {
-      return NextResponse.json({
+    return NextResponse.json(
+      {
         status: 400,
         msg: "Bad request, please upload the file to send queries",
-      });
-    }
+      },
+      { status: 400 }
+    );
+  }
+
+  const client = await createCache();
+  const tokensLeft = await client.get(sessionCookie);
+
+  if (tokensLeft) {
+    await client.decr(sessionCookie);
+    return NextResponse.next();
+  } else {
+    return NextResponse.json(
+      {
+        status: 400,
+        msg: "Bad request, please upload the file to send queries",
+      },
+      { status: 400 }
+    );
   }
 }
 
+export default async function middleware(req: NextRequest) {
+  // check or create session first
+  const sessionRes = await session(req);
+  if (sessionRes && sessionRes.cookies.get("session-id")) {
+    // we set a new cookie, return early to ensure it’s sent
+    return sessionRes;
+  }
+
+  // only run rate limiter for specific paths
+  if (req.nextUrl.pathname === "/api/doc-chat/nonefornow") {
+    const rateLimitRes = await rateLimiter(req);
+    return rateLimitRes;
+  }
+  
+  return NextResponse.next();
+}
+
 export const config = {
-  matcher: "/api/doc-chat/nonefornow",
+  matcher: ["/:path*"],
 };
 
 /*

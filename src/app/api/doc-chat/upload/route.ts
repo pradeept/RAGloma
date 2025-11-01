@@ -38,7 +38,7 @@ export async function POST(req: NextRequest) {
   const client = await createCache();
   const cookieStore = await cookies();
 
-  const sessionIdFromCookie = cookieStore.get("session-id")?.value;
+  const sessionIdFromCookie = cookieStore.get("rate-id")?.value;
 
   if (!sessionIdFromCookie || !(await client.get(sessionIdFromCookie))) {
     // generate a new session ID
@@ -53,7 +53,7 @@ export async function POST(req: NextRequest) {
       { status: 200 }
     );
 
-    response.cookies.set("session-id", newSessionId, {
+    response.cookies.set("rate-id", newSessionId, {
       maxAge: 60 * 60 * 6,
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
