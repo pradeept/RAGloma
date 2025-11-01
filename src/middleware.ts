@@ -65,7 +65,7 @@ export default async function middleware(req: NextRequest) {
   }
 
   // only run rate limiter for specific paths
-  if (req.nextUrl.pathname === "/api/doc-chat/nonefornow") {
+  if (req.nextUrl.pathname === "/api/doc-chat/") {
     const rateLimitRes = await rateLimiter(req);
     return rateLimitRes;
   }

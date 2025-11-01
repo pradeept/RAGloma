@@ -1,10 +1,10 @@
-import { Pinecone, } from "@pinecone-database/pinecone";
+import { Pinecone } from "@pinecone-database/pinecone";
 
-export let pineClient:null | Pinecone = null;
+export let pineClient: null | Pinecone = null;
 
-const createIndex = async ()=>{
+const createIndex = async (fileHash: string) => {
   // create a pine client
-  if(!pineClient){
+  if (!pineClient) {
     pineClient = new Pinecone({ apiKey: process.env.PINECONE_KEY || "" });
   }
 
@@ -39,9 +39,9 @@ const createIndex = async ()=>{
     console.error("Error checking or creating index:", error);
   }
   // create a reference for index
-  const index = pineClient.index(indexName).namespace("default-namespace");
+  const index = pineClient.index(indexName).namespace(fileHash);
   return index;
-}
+};
 
 // export for upserting
 export { createIndex };

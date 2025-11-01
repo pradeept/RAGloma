@@ -10,16 +10,17 @@ export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
 
   const prompt = searchParams.get("prompt");
+  const fileHash = searchParams.get("file");
   // const llm = searchParams.get("llm");
 
-  const stream = await chatWithDoc(prompt!);
-
-  if (!prompt) {
+  if (!prompt || !fileHash) {
     return NextResponse.json(
       { error: "Missing query parameter" },
       { status: 400 }
     );
   }
+
+  const stream = await chatWithDoc(prompt!, fileHash);
 
   const readableStream = new ReadableStream({
     async start(controller) {

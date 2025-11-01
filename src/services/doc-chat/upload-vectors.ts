@@ -28,7 +28,7 @@ const uploadVectors = async (
   });
 
   // creat the index
-  const index = await createIndex();
+  const index = await createIndex(hash);
   if (!index) {
     return { success: false, error: "Failed to create index" };
   }

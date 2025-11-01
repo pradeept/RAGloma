@@ -3,8 +3,8 @@ import { ChatPromptTemplate } from "@langchain/core/prompts";
 import { Ollama } from "@langchain/ollama";
 import { pull } from "langchain/hub";
 
-export async function chatWithDoc(query: string) {
-  const index = await createIndex();
+export async function chatWithDoc(query: string,fileHash:string) {
+  const index = await createIndex(fileHash);
   // search the dense index
   const results = await index.searchRecords({
     query: {

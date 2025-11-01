@@ -2,7 +2,13 @@
 import { Check, Paperclip, ShieldAlert, X } from "lucide-react";
 import React, { useEffect, useRef, useState } from "react";
 
-function FileUpload() {
+function FileUpload({
+  setIsFileSelected,
+  setFileHash
+}: {
+  setIsFileSelected: React.Dispatch<React.SetStateAction<boolean>>,
+  setFileHash: React.Dispatch<React.SetStateAction<string>>
+}) {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [uploadStatus, setUploadStatus] = useState<
@@ -17,6 +23,7 @@ function FileUpload() {
     const file = e.target.files?.[0];
     if (file) {
       setSelectedFile(file);
+      setIsFileSelected(true);
     }
   };
 
@@ -24,6 +31,7 @@ function FileUpload() {
     setSelectedFile(null);
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
+      setIsFileSelected(false);
     }
   };
 
@@ -40,8 +48,9 @@ function FileUpload() {
         .then((res) => {
           return res.json();
         })
-        .then((body: { message: string; error: null | string }) => {
+        .then((body: { message: string; error: null | string, fileHash:string }) => {
           if (!body.error) {
+            setFileHash(body.fileHash)
             setUploadStatus(true);
           }
         })

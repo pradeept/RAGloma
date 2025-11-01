@@ -23,6 +23,8 @@ export default function InputBox() {
   const setMode = useChatStore((state) => state.setMode);
   const setIsChatLoading = useChatStore((state) => state.setIsChatLoading);
   const [prompt, setPrompt] = useState("");
+  const [isFileSelected, setIsFileSelected] = useState<boolean>(false);
+  const [fileHash, setFileHash] = useState<string>("");
 
   const path = usePathname();
 
@@ -61,7 +63,7 @@ export default function InputBox() {
         : process.env.NEXT_PUBLIC_HOST;
     const url = `${base}/api/${mode}?prompt=${encodeURIComponent(
       prompt
-    )}&llm=${llm}`;
+    )}&llm=${llm}${mode === "doc-chat" && '&file='+fileHash}`;
 
     const eventSource = new window.EventSource(url);
     setIsChatLoading(true, aiId);
@@ -99,16 +101,19 @@ export default function InputBox() {
         <form onSubmit={handlePrompt}>
           <textarea
             name='chat-input'
-            className='min-h-20 w-full px-2 py-1 resize-none rounded text-black dark:text-white focus:outline-none border transition-all'
+            className='min-h-20 disabled:cursor-not-allowed w-full px-2 py-1 resize-none rounded text-black dark:text-white focus:outline-none border transition-all '
             rows={2}
             onChange={(e) => setPrompt(e.target.value)}
             value={prompt}
             onKeyDown={handleKeyDown}
+            disabled={mode === "doc-chat" && !isFileSelected}
             placeholder='Enter your prompt here.. (Enter to send, Shift+Enter for newline)'
           />
         </form>
 
-        {mode === "doc-chat" && <FileUpload />}
+        {mode === "doc-chat" && (
+          <FileUpload setIsFileSelected={setIsFileSelected} setFileHash={setFileHash}/>
+        )}
 
         {mode === "url-chat" && (
           <div className='flex justify-center items-center gap-2 mt-2'>
