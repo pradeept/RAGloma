@@ -63,7 +63,7 @@ export default function InputBox() {
         : process.env.NEXT_PUBLIC_HOST;
     const url = `${base}/api/${mode}?prompt=${encodeURIComponent(
       prompt
-    )}&llm=${llm}${mode === "doc-chat" && '&file='+fileHash}`;
+    )}&llm=${llm}${mode === "doc-chat" ?'&file='+fileHash: ''}`;
 
     const eventSource = new window.EventSource(url);
     setIsChatLoading(true, aiId);
