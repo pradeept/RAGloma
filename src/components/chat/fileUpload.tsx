@@ -1,6 +1,7 @@
 "use client";
 import { Check, Paperclip, ShieldAlert, X } from "lucide-react";
 import React, { useEffect, useRef, useState } from "react";
+import { toast } from "sonner";
 
 function FileUpload({
   setIsFileSelected,
@@ -57,6 +58,7 @@ function FileUpload({
         .catch((e) => {
           console.error(e);
           setUploadStatus(false);
+          toast.error('Failed to upload the file')
         });
     }
   };
