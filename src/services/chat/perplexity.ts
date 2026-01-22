@@ -38,12 +38,16 @@ export async function perplexity(sessionId: string, prompt: string) {
 
   // chat_history should be of BaseMessage type
   if (!chat_history) {
-    chat_history = [new HumanMessage(""), new AIMessage("")];
+    // new adjustment: preplexity api require message to be non-empty (below messages are stub)
+    chat_history = [
+      new HumanMessage("there is no chat history"),
+      new AIMessage("okay understood"),
+    ];
   }
 
   // response streaming
-  const streamResp = await chain.stream({ input:prompt, chat_history });
-  
+  const streamResp = await chain.stream({ input: prompt, chat_history });
+
   // update prompt to store
   memory.insertNewConversation(sessionId!, new HumanMessage(prompt));
 
